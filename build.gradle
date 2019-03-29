@@ -1,0 +1,111 @@
+plugins {
+  id "war"
+  id "net.wasdev.wlp.gradle.plugins.Liberty" version "2.6.3"
+  id "io.spring.dependency-management" version "1.0.7.RELEASE"
+}
+
+ext {
+  openlibertyVersion = "19.0.0.2"
+  appName = project.name
+  testServerHttpPort = 9080
+  testServerHttpsPort = 9443
+  warContext = appName
+}
+
+version = "1.0-SNAPSHOT"
+group = "io.openliberty.guides"
+description = "Open Liberty MicroProfile with Gradle"
+
+repositories {
+  mavenCentral()
+}
+
+dependencyManagement {
+  imports {
+    mavenBom "io.openliberty.features:features-bom:$openlibertyVersion"
+  }
+  dependencies {
+    dependency "io.openliberty:openliberty-runtime:$openlibertyVersion"
+    dependency "javax.servlet:javax.servlet-api:3.1.0"
+    dependency "junit:junit:4.12"
+    dependency "commons-httpclient:commons-httpclient:3.1"
+  }
+}
+
+dependencies {
+  providedCompile "io.openliberty.features:microProfile-2.1"
+  libertyRuntime "io.openliberty.features:microProfile-2.1"
+
+  testImplementation "commons-httpclient:commons-httpclient"
+  testImplementation "junit:junit"
+}
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+tasks.withType(JavaCompile) {
+  options.encoding = "UTF-8"
+}
+
+liberty {
+  server {
+    name = "${appName}Server"
+    configFile = file("src/main/liberty/config/server.xml")
+    bootstrapProperties = [
+        "default.http.port" : testServerHttpPort as String,
+        "default.https.port": testServerHttpsPort as String,
+        "app.context.root"  : warContext as String,
+    ]
+    packageLiberty {
+      archive = "$buildDir/${appName}.zip"
+      include = "usr"
+    }
+  }
+}
+
+war {
+  archiveFileName = "${archiveBaseName.get()}.${archiveExtension.get()}"
+}
+
+test {
+  reports.html.destination = file("$buildDir/reports/unit")
+  reports.junitXml.destination = file("$buildDir/test-results/unit")
+  exclude "**/*IT*" // this one is needed for regular gradle test executions...
+}
+
+task integrationTest(type: Test) {
+  group = "Liberty"
+  description "Runs the integration tests."
+  systemProperty "liberty.test.port", testServerHttpPort
+  systemProperty "war.name"         , warContext
+  reports.html.destination = file("$buildDir/reports/it")
+  reports.junitXml.destination = file("$buildDir/test-results/it")
+  include "**/*IT*" // integration tests
+  exclude "**/*Test*" // unit tests
+}
+
+static void browseUrl(def source) {
+  java.awt.Desktop.desktop.browse(source)
+}
+
+task openBrowser {
+  group = "Liberty"
+  description = "Open application on http://localhost:8080/${warContext}"
+  doLast {
+    browseUrl("http://localhost:${testServerHttpPort}/${appName}".toURL())
+  }
+}
+
+task openTestReport {
+  group = "Liberty"
+  description = "Open test report"
+  doLast {
+    browseUrl(file("$buildDir/reports/it/index.html").toURI())
+  }
+}
+
+clean.dependsOn("libertyStop")
+check.dependsOn("integrationTest")
+integrationTest.dependsOn("libertyStart")
+integrationTest.finalizedBy("libertyStop")
+//integrationTest.finalizedBy("openTestReport") // skip browser opening
+libertyPackage.dependsOn("libertyStop")

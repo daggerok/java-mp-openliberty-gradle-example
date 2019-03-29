@@ -1,0 +1,22 @@
+<server description="Sample Servlet server">
+  <featureManager>
+    <feature>microProfile-2.1</feature>
+  </featureManager>
+  <!--<featureManager>
+      <feature>servlet-3.1</feature>
+      <feature>jaxrs-2.1</feature>
+      <feature>jsonp-1.1</feature>
+      <feature>cdi-2.0</feature>
+      <feature>mpMetrics-1.1</feature>
+      <feature>mpHealth-1.0</feature>
+  </featureManager>-->
+
+  <httpEndpoint httpPort="${default.http.port}"
+                httpsPort="${default.https.port}"
+                id="defaultHttpEndpoint"
+                host="*"/>
+
+  <webApplication id="app"
+                  location="app.war"
+                  contextRoot="${app.context.root}"/>
+</server>

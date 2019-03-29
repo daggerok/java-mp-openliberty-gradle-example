@@ -1,0 +1,33 @@
+= OpenLiberty Gradle example
+Java (Jakarta) EE MicroProfile OpenLiberty Gradle application
+
+## test / build
+[source, bash]
+----
+./gradlew integrationTest
+./gradlew openTestReport
+
+./gradlew build
+----
+
+## run / open in browser / stop
+[source, bash]
+----
+./gradlew libertyStart
+
+./gradlew openBrowser
+
+./gradlew libertyStop
+----
+
+resources:
+
+- link:https://openliberty.io/guides/gradle-intro.html#ready-to-run[Building OpenLiberty web application with Gradle]
+- link:https://openliberty.io/guides/getting-started.html#updating-the-server-configuration-without-restarting-the-server[OpenLiberty getting started guide]
+- link:https://github.com/WASdev/ci.gradle[The Liberty Gradle plugin]
+- link:https://openliberty.io/blog/2018/12/14/microprofile21-18004.html[Liberty MicroProfile]
+- link:https://openliberty.io/blog/2018/07/27/installing-features-from-maven-dependencies.html[Liberty features guide]
+- link:https://openliberty.io/guides/[OpenLiberty guides page]
+- link:https://docs.spring.io/dependency-management-plugin/docs/current-SNAPSHOT/reference/html/[Spring dependencies management Gradle plugin]
+- link:https://www.ibm.com/blogs/bluemix/2018/09/migrate-java-microservices-from-spring-to-microprofile-p1/[Migrating Java Microservices from Spring Boot to MicroProfile]
+- link:https://docs.gradle.org/current/dsl/org.gradle.api.tasks.testing.Test.html[Gradle 5.3 test config]
